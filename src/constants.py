@@ -29,6 +29,20 @@ DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
 LOG_FORMAT = '"%(asctime)s - [%(levelname)s] - %(message)s"'
 # Указываем формат времени.
 DT_FORMAT = '%d.%m.%Y %H:%M:%S'
+# Статусы
+EXPECTED_STATUS = {
+    'A': ('Active', 'Accepted'),
+    'D': ('Deferred',),
+    'F': ('Final',),
+    'P': ('Provisional',),
+    'R': ('Rejected',),
+    'S': ('Superseded',),
+    'W': ('Withdrawn',),
+    '': ('Draft', 'Active'),
+}
+# Адрес страницы pep
+PEP_URL = 'https://peps.python.org/'
+
 
 # ヽ(´▽`)/
 

@@ -44,7 +44,7 @@ from tqdm import tqdm
 # Импорт функции с конфигурацией парсера аргументов командной строки.
 from configs import configure_argument_parser, configure_logging
 # Импортируем константы
-from constants import BASE_DIR, MAIN_DOC_URL
+from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, PEP_URL
 # Контролировать вывод результатов в программе будет эта функция
 from outputs import control_output
 # Обработка ошибок
@@ -101,7 +101,7 @@ def whats_new(session):
     # Добавьте в пустой список заголовки таблицы.
     # Для PrettyTable нужно задать заголовки. Для этого замените пустую
     # инициализацию списка results на инициализацию с заголовками таблицы.
-    results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
+    results = [('Ссылка на статью', 'Заголовок', 'Редактор, Автор')]
 
     # прогресс-бар из библиотеки tqdm
     for section in tqdm(sections_by_python):
@@ -356,10 +356,41 @@ def download(session):
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
 
 
+def pep(session):
+    pep_url = PEP_URL
+    response = get_response(session, pep_url)
+    if response is None:
+        # Если основная страница не загрузится, программа закончит работу.
+        return
+    # Создание "супа".
+    soup = BeautifulSoup(response.text, features='lxml')
+    main_div = find_tag(soup, 'section', attrs={'id': 'numerical-index'})
+    rows_pep = main_div.find_all('tr')
+    for row in rows_pep[1:2]:
+        preview_status = find_tag(row, 'abbr').text[1:]
+        version_a_tag = find_tag(row, 'a')['href']
+        version_link = urljoin(pep_url, version_a_tag)
+
+        # response = get_response(row, version_link)
+        # if response is None:
+        #    # Если страница не загрузится, программа перейдёт к
+        #    # следующей ссылке.
+        #     continue
+        # Сварим "супчик".
+        # soup = BeautifulSoup(response.text, 'lxml')
+        # h1 = find_tag(soup, 'dl')
+        # results.append(
+        #     (version_link, preview_status)
+        # )
+        # # Вместо вывода списка на печать верните этот список.
+        return version_link, preview_status
+
+
 MODE_TO_FUNCTION = {
     'whats-new': whats_new,
     'latest-versions': latest_versions,
     'download': download,
+    'pep': pep
 }
 
 

@@ -53,6 +53,12 @@ def configure_argument_parser(available_modes):
         choices=('pretty', 'file'),
         help='Дополнительные способы вывода данных'
     )
+    # pep
+    parser.add_argument(
+        '--pep',
+        action='store_true',
+        help='Страница pep'
+    )
     return parser
 
 
