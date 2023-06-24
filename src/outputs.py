@@ -31,27 +31,13 @@ def control_output(results, cli_args):
     Анализирует атрибуты, указанные при запуске программы.
     По ним определяет, в каком виде нужно предоставить данные.
     """
-    CHOICES = {
-        'pretty': pretty_output,
-        'file': file_output,
-        None: default_output
-    }
-
-    CHOICES[cli_args.output](results, cli_args)
-    # """Контролировать вывод результатов в программе."""
-    # # Чтобы не обращаться дважды к атрибуту объекта в условиях if, elif,
-    # # сохраним значение в переменную.
-    # output = cli_args.output
-    #
-    # if output == 'pretty':
-    #     # Вывод данных в PrettyTable.
-    #     pretty_output(results)
-    # elif output == 'file':
-    #     # Вывод данных в файл csv. Саму функцию напишем позже.
-    #     file_output(results, cli_args)
-    # else:
-    #     # Вывод данных по умолчанию — в терминал построчно.
-    #     default_output(results)
+    output = cli_args.output
+    if output == 'pretty':
+        pretty_output(results)
+    elif output == 'file':
+        file_output(results, cli_args)
+    else:
+        default_output(results)
 
 
 # Вывод данных в терминал построчно.
@@ -64,15 +50,10 @@ def default_output(results):
 # Вывод данных в формате PrettyTable.
 def pretty_output(results):
     """Печать данных в формате таблицы."""
-    # Инициализируем объект PrettyTable.
     table = ColorTable(theme=Themes.OCEAN)
-    # В качестве заголовков устанавливаем первый элемент списка.
     table.field_names = results[0]
-    # Выравниваем всю таблицу по левому краю.
     table.align = 'l'
-    # Добавляем все строки, начиная со второй (с индексом 1).
     table.add_rows(results[1:])
-    # Печатаем таблицу.
     print(' ', table, ' ', '=^..^=______/', sep='\n')
 
 

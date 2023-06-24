@@ -18,7 +18,6 @@ RequestException — это базовая ошибка. Условия, при 
 """
 
 
-# exceptions.py
 class ParserFindTagException(Exception):
     """Вызывается, когда парсер не может найти тег."""
 

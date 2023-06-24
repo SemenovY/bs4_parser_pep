@@ -48,19 +48,15 @@ def get_response(session, url):
             return
 
     except RequestException:
-        # в какой кусок кода смотреть, чтобы её исправить
         logging.exception(
             f'Возникла ошибка при загрузке страницы {url}',
-            # отвечает за вывод стека вызова функций
             stack_info=True
         )
-        # Стек вызова функций выглядит как полный трейсбек с сообщением
-        # об ошибке, но он указывает не на саму ошибку,
-        # а на операцию логирования.
+
 
 
 # Перехват ошибки поиска тегов.
-def find_tag(soup, tag, attrs=None, string=None):
+def find_tag(soup, tag, attrs=None):
     """
     Нужно предусмотреть ситуацию, что нужного тега не окажется в HTML-коде.
 
@@ -81,13 +77,9 @@ def find_tag(soup, tag, attrs=None, string=None):
     :param attrs:
     :return:
     """
-    # Функция будет искать теги с атрибутами, которые переданы при её вызове,
-    # либо вообще с любыми атрибутами, на что указывает пустой словарь.
-    searched_tag = soup.find(tag, attrs=(attrs or {}), string=(string or None))
-    # Если тег не найдётся, программа завершит работу,
-    # а в логи и терминал выведется сообщение об ошибке.
+    searched_tag = soup.find(tag, attrs=(attrs or {}))
     if searched_tag is None:
-        error_msg = f'Не найден тег {tag} {attrs} {string}'
+        error_msg = f'Не найден тег {tag} {attrs}'
         logging.error(error_msg, stack_info=True)
         raise ParserFindTagException(error_msg)
     return searched_tag
