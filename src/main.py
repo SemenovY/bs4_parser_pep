@@ -357,33 +357,35 @@ def download(session):
 
 
 def pep(session):
-    pep_url = PEP_URL
-    response = get_response(session, pep_url)
+    # Нашли pep
+    response = get_response(session, PEP_URL)
     if response is None:
-        # Если основная страница не загрузится, программа закончит работу.
         return
-    # Создание "супа".
     soup = BeautifulSoup(response.text, features='lxml')
-    main_div = find_tag(soup, 'section', attrs={'id': 'numerical-index'})
-    rows_pep = main_div.find_all('tr')
-    for row in rows_pep[1:2]:
+    main_div = find_tag(soup, 'section', attrs={'id': 'numerical-index'}).find_all('tr')
+    status_main = []
+    status_on_pep_page = []
+    # Ищем статус
+    for row in main_div[1:4]:
+        preview_status = find_tag(row, 'abbr').text[1:]
+        status_main.append(preview_status)
+
+    # Сравниваем статусы
+    for row in main_div[1:4]:
         preview_status = find_tag(row, 'abbr').text[1:]
         version_a_tag = find_tag(row, 'a')['href']
-        version_link = urljoin(pep_url, version_a_tag)
+        version_link = urljoin(PEP_URL, version_a_tag)
+        response = get_response(session, version_link)
+        if response is None:
+            continue
+        soup = BeautifulSoup(response.text, features='lxml')
+        # dl_tag_in_soup = find_tag(soup, 'abbr', {'title':'Currently valid informational guidance, or an in-use process'})
 
-        # response = get_response(row, version_link)
-        # if response is None:
-        #    # Если страница не загрузится, программа перейдёт к
-        #    # следующей ссылке.
-        #     continue
-        # Сварим "супчик".
-        # soup = BeautifulSoup(response.text, 'lxml')
-        # h1 = find_tag(soup, 'dl')
-        # results.append(
-        #     (version_link, preview_status)
-        # )
-        # # Вместо вывода списка на печать верните этот список.
-        return version_link, preview_status
+
+    return status_main
+
+
+
 
 
 MODE_TO_FUNCTION = {
