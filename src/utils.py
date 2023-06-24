@@ -42,7 +42,11 @@ def get_response(session, url):
     try:
         response = session.get(url)
         response.encoding = 'utf-8'
-        return response
+        if response is not None:
+            return response
+        else:
+            return
+
     except RequestException:
         # в какой кусок кода смотреть, чтобы её исправить
         logging.exception(
@@ -56,7 +60,7 @@ def get_response(session, url):
 
 
 # Перехват ошибки поиска тегов.
-def find_tag(soup, tag, attrs=None):
+def find_tag(soup, tag, attrs=None, string=None):
     """
     Нужно предусмотреть ситуацию, что нужного тега не окажется в HTML-коде.
 
@@ -79,11 +83,11 @@ def find_tag(soup, tag, attrs=None):
     """
     # Функция будет искать теги с атрибутами, которые переданы при её вызове,
     # либо вообще с любыми атрибутами, на что указывает пустой словарь.
-    searched_tag = soup.find(tag, attrs=(attrs or {}))
+    searched_tag = soup.find(tag, attrs=(attrs or {}), string=(string or None))
     # Если тег не найдётся, программа завершит работу,
     # а в логи и терминал выведется сообщение об ошибке.
     if searched_tag is None:
-        error_msg = f'Не найден тег {tag} {attrs}'
+        error_msg = f'Не найден тег {tag} {attrs} {string}'
         logging.error(error_msg, stack_info=True)
         raise ParserFindTagException(error_msg)
     return searched_tag

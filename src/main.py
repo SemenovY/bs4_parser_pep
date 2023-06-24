@@ -31,6 +31,7 @@ PrettyTable — это дополнительный модуль Python, кот�
 import logging
 # Импортируйте модуль для работы с регулярными выражениями.
 import re
+from collections import defaultdict
 # Импортируем функцию объединения ссылок из библиотеки.
 from urllib.parse import urljoin
 
@@ -104,7 +105,7 @@ def whats_new(session):
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, Автор')]
 
     # прогресс-бар из библиотеки tqdm
-    for section in tqdm(sections_by_python):
+    for section in tqdm(sections_by_python, desc='Выполнение цикла парсинга'):
         version_a_tag = find_tag(section, 'a')
         # Получаем относительный адрес из атрибута href и
         # сгенерируем абсолютную ссылку с помощью функции urljoin():
@@ -121,7 +122,7 @@ def whats_new(session):
             continue
 
         # Сварим "супчик".
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = BeautifulSoup(response.text, features='lxml')
         # Найдем в "супе" тег h1.
         h1 = find_tag(soup, 'h1')
         # Найдем в "супе" тег dl.
@@ -180,11 +181,11 @@ def latest_versions(session):
             a_tags = ul.find_all('a')
             # Остановка перебора списков.
             break
-    # Если нужный список не нашёлся,
-    # вызывается исключение и выполнение программы прерывается.
-    else:
-        # not for 3.11 raise Exception
-        raise AssertionError('Ничего не нашлось')
+        # Если нужный список не нашёлся,
+        # вызывается исключение и выполнение программы прерывается.
+        else:
+            # not for 3.11 raise Exception
+            raise AssertionError('Ничего не нашлось')
 
     # Вы получили нужный список, можно доставать из него
     # номера версий Python и их статусы.
@@ -362,27 +363,68 @@ def pep(session):
     if response is None:
         return
     soup = BeautifulSoup(response.text, features='lxml')
-    main_div = find_tag(soup, 'section', attrs={'id': 'numerical-index'}).find_all('tr')
-    status_main = []
-    status_on_pep_page = []
-    # Ищем статус
-    for row in main_div[1:4]:
-        preview_status = find_tag(row, 'abbr').text[1:]
-        status_main.append(preview_status)
+    section_tag = find_tag(soup, 'section', attrs={'id': 'numerical-index'})
+    tbody_tag = find_tag(section_tag, 'tbody')
+    tr_tags = tbody_tag.find_all('tr')
 
-    # Сравниваем статусы
-    for row in main_div[1:4]:
-        preview_status = find_tag(row, 'abbr').text[1:]
-        version_a_tag = find_tag(row, 'a')['href']
-        version_link = urljoin(PEP_URL, version_a_tag)
-        response = get_response(session, version_link)
-        if response is None:
-            continue
+    results = [('Cтатус', 'Количество')]
+    pep_sum = defaultdict(list)
+    total_sum = 0
+
+    for tr_tag in tqdm(tr_tags):
+        a_tag_href = find_tag(tr_tag, 'a', attrs={'class': 'pep reference internal'})
+        # ссылку получили
+        pep_url = urljoin(PEP_URL, a_tag_href['href'])
+
+        # cooking soup
+        response = get_response(session, pep_url)
         soup = BeautifulSoup(response.text, features='lxml')
-        # dl_tag_in_soup = find_tag(soup, 'abbr', {'title':'Currently valid informational guidance, or an in-use process'})
+        # find dl tag
+        dl_tag = find_tag(soup, 'dl', attrs={'class': 'rfc2822 field-list simple'})
+        # find status in pep page
+        dd_tag = find_tag(dl_tag, 'dt', attrs={'class': 'field-even'}).find_next_sibling('dd')
+        status_in_pep_page = dd_tag.string
+        # find status in main page
+        status_in_main_page = find_tag(tr_tag, 'td').string[1:]
+
+        try:
+            if status_in_pep_page not in EXPECTED_STATUS[status_in_main_page]:
+                if (len(status_in_main_page) > 2 or
+                        EXPECTED_STATUS[status_in_main_page] is None):
+                    raise KeyError('Получен неожиданный статус')
+                logging.info(
+                    f'Несовпадающие статусы:\n {pep_url}\n'
+                    f'Cтатус в карточке: {status_in_pep_page}\n'
+                    f'Ожидаемые статусы: {EXPECTED_STATUS[status_in_main_page]}'
+                )
 
 
-    return status_main
+        except KeyError:
+            logging.warning('Получен некоректный статус')
+
+        else:
+            pep_sum[status_in_pep_page] = pep_sum.get(status_in_pep_page, 0) + 1
+
+
+
+
+
+
+    results.extend(pep_sum.items())
+
+    return results
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

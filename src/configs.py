@@ -53,13 +53,13 @@ def configure_argument_parser(available_modes):
         choices=('pretty', 'file'),
         help='Дополнительные способы вывода данных'
     )
-    # # pep
+    # # :TODO: v1
     # parser.add_argument(
     #     '--pep',
     #     action='store_true',
     #     help='Страница pep'
     # )
-    return parser
+    # return parser
 
 
 #  Функция отвечает за конфигурацию логов.
