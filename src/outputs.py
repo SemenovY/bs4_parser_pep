@@ -18,7 +18,7 @@ import csv
 import datetime as dt
 import logging
 
-from prettytable.colortable import ColorTable, Themes
+from prettytable import PrettyTable
 
 from constants import BASE_DIR, DATETIME_FORMAT
 
@@ -48,7 +48,7 @@ def default_output(results):
 # Вывод данных в формате PrettyTable.
 def pretty_output(results):
     """Печать данных в формате таблицы."""
-    table = ColorTable(theme=Themes.OCEAN)
+    table = PrettyTable()
     table.field_names = results[0]
     table.align = 'l'
     table.add_rows(results[1:])

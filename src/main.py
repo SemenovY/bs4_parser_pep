@@ -54,8 +54,6 @@ def whats_new(session):
         version_a_tag = find_tag(section, 'a')
         version_link = urljoin(whats_new_url, version_a_tag['href'])
         response = get_response(session, version_link)
-        if response is None:
-            continue
         soup = BeautifulSoup(response.text, features='lxml')
         h1 = find_tag(soup, 'h1')
         dl = find_tag(soup, 'dl')
@@ -141,11 +139,11 @@ def pep(session):
     # Шаг 2 - Получаем ссылки, варим новый суп и пробегаемся по всем pep_pages.
     result = [('Cтатус', 'Количество')]
     count_pep_status = defaultdict(int)
-    for index in range(1, len(tr_tags)):
+    for index in tqdm(range(1, len(tr_tags)), desc='Выполнение цикла'):
         pep_href_tag = tr_tags[index].a['href']
         pep_link = urljoin(PEP_URL, pep_href_tag)
         response = get_response(session, pep_link)
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = BeautifulSoup(response.text, features='lxml')
         main_card_tag = find_tag(soup, 'section', {'id': 'pep-content'})
         main_card_dl_tag = find_tag(
             main_card_tag, 'dl',
@@ -153,7 +151,7 @@ def pep(session):
             )
 
         # Шаг 3 - На странице pep находим статус, добавляем в dict
-        for tag in tqdm(main_card_dl_tag):
+        for tag in main_card_dl_tag:
             if tag.name == 'dt' and tag.text == 'Status:':
                 card_status = tag.next_sibling.next_sibling.string
                 count_pep_status[card_status] = count_pep_status.get(
