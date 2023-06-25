@@ -40,8 +40,6 @@ from utils import find_tag, get_response
 def whats_new(session):
     """
     Первый парсер: будет переходить по ссылкам.
-
-
     """
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)

@@ -1,5 +1,6 @@
 """
-Сейчас в коде есть вот такие константы:
+Сейчас в коде есть вот такие константы.
+
 BASE_DIR в файле download.py. В ней хранится абсолютный путь до директории
 проекта.
 WHATS_NEW_URL в файле whats_new.py со ссылкой
@@ -10,10 +11,7 @@ DOWNLOADS_URL в файле download.py со ссылкой
 https://docs.python.org/3/download.html.
 У констант WHATS_NEW_URL, MAIN_DOC_URL, DOWNLOADS_URL есть общая
 часть —  https://docs.python.org/3/.
-Вынесем её в константу MAIN_DOC_URL,
-а если нужная ссылка для парсера не будет совпадать со значением константы,
-заведём для неё переменную, в которой сформируем полную ссылку
-при помощи функции urljoin().
+Вынесем её в константу MAIN_DOC_URL.
 """
 from pathlib import Path
 
