@@ -121,15 +121,26 @@ def download(session):
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
 
 
+# Со страницы pep получаем данные о статусе и выводим в таблицу.
 def pep(session):
+    """
+    На главной странице находим ссылки на pep
+    На странице pep считываем статус и заносим в словарь
+    Словарь из модуля collection, используем для значения по умолчанию
+    для новых значений, defaultdict(int) через get
+    Делаем проверку на несовпадающий статус и вывод лога в консоль.
+    Через цикл заполняем таблицу.
+    """
+    # Шаг 1 - Закрепимся на главной странице, найдем точку входа в pep_index
     response = get_response(session, PEP_URL)
     soup = BeautifulSoup(response.text, features='lxml')
     section_tag = find_tag(soup, 'section', attrs={'id': 'numerical-index'})
     tbody_tag = find_tag(section_tag, 'tbody')
     tr_tags = tbody_tag.find_all('tr')
-    result = [('Cтатус', 'Количество')]
-    pep_sum = defaultdict(int)
 
+    # Шаг 2 - Получаем ссылки, варим новый суп и пробегаемся по всем pep_pages.
+    result = [('Cтатус', 'Количество')]
+    count_pep_status = defaultdict(int)
     for index in range(1, len(tr_tags)):
         pep_href_tag = tr_tags[index].a['href']
         pep_link = urljoin(PEP_URL, pep_href_tag)
@@ -141,14 +152,16 @@ def pep(session):
             {'class': 'rfc2822 field-list simple'}
             )
 
+        # Шаг 3 - На странице pep находим статус, добавляем в dict
         for tag in tqdm(main_card_dl_tag):
             if tag.name == 'dt' and tag.text == 'Status:':
                 card_status = tag.next_sibling.next_sibling.string
-                pep_sum[card_status] = pep_sum.get(card_status, 0) + 1
+                count_pep_status[card_status] = count_pep_status.get(
+                    card_status, 0) + 1
 
+                # Шаг 4 - Проверка на наличие статуса в main_page и совпадение
                 if len(tr_tags[index].td.text) != 1:
                     table_status = tr_tags[index].td.text[1:]
-
                     if card_status[0] != table_status:
                         logging.info(
                             '\n'
@@ -159,8 +172,9 @@ def pep(session):
                             f'{EXPECTED_STATUS[table_status]}\n'
                         )
 
-    for key in pep_sum:
-        result.append((key, str(pep_sum[key])))
+    # Шаг 5 - Загоняем данные из словаря в таблицу и добавим Total.
+    for key in count_pep_status:
+        result.append((key, str(count_pep_status[key])))
     result.append(('Total', len(tr_tags) - 1))
     return result
 
