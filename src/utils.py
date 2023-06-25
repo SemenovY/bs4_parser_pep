@@ -39,8 +39,6 @@ def get_response(session, url):
         response.encoding = 'utf-8'
         if response is not None:
             return response
-        else:
-            return
 
     except RequestException:
         logging.exception(

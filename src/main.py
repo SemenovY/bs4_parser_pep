@@ -38,9 +38,7 @@ from utils import find_tag, get_response
 
 # Собираем ссылки, забираем информацию об авторах и редакторах статей.
 def whats_new(session):
-    """
-    Первый парсер: будет переходить по ссылкам.
-    """
+    """Первый парсер: будет переходить по ссылкам."""
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
     soup = BeautifulSoup(response.text, features='lxml')
@@ -67,8 +65,9 @@ def whats_new(session):
 # Информация о версиях Python — номера, статусы и ссылки на документацию.
 def latest_versions(session):
     """
-    Второй парсер будет собирать информацию о версиях Python — номера,
-    статусы (in development, pre-release, stable и так далее)
+    Второй парсер будет собирать информацию о версиях Python.
+
+    Номера, статусы (in development, pre-release, stable и так далее)
     и ссылки на документацию.
     """
     response = get_response(session, MAIN_DOC_URL)
@@ -79,8 +78,7 @@ def latest_versions(session):
         if 'All versions' in ul.text:
             a_tags = ul.find_all('a')
             break
-        else:
-            raise AssertionError('Ничего не нашлось')
+        raise AssertionError('Ничего не нашлось')
     results = [('Ссылка на документацию', 'Версия', 'Статус')]
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
     for a_tag in a_tags:
@@ -96,9 +94,7 @@ def latest_versions(session):
 
 # Скачиваем архив документации Python.
 def download(session):
-    """
-    Парсер будет скачивать архив с документацией Python на локальный диск.
-    """
+    """Парсер будет скачивать архив с документацией Python на диск."""
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
     response = get_response(session, downloads_url)
     soup = BeautifulSoup(response.text, features='lxml')
@@ -122,7 +118,8 @@ def download(session):
 # Со страницы pep получаем данные о статусе и выводим в таблицу.
 def pep(session):
     """
-    На главной странице находим ссылки на pep
+    На главной странице находим ссылки на pep.
+
     На странице pep считываем статус и заносим в словарь
     Словарь из модуля collection, используем для значения по умолчанию
     для новых значений, defaultdict(int) через get
