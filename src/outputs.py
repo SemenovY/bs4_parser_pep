@@ -27,6 +27,7 @@ from constants import BASE_DIR, DATETIME_FORMAT
 def control_output(results, cli_args):
     """
     Анализирует атрибуты, указанные при запуске программы.
+
     По ним определяет, в каком виде нужно предоставить данные.
     """
     output = cli_args.output
