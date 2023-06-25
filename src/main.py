@@ -20,12 +20,6 @@
 
 # Запуск парсера, который скачивает архив документации Python.
 (venv) ...$ python main.py download
-
-Так же
-Библиотека PrettyTable
-PrettyTable — это дополнительный модуль Python, который позволяет создавать
-простые таблицы и выводить их в терминал, текстовый файл или передавать
-на обработку в другие программы.
 """
 import logging
 import re
@@ -42,7 +36,13 @@ from outputs import control_output
 from utils import find_tag, get_response
 
 
+# Собираем ссылки, забираем информацию об авторах и редакторах статей.
 def whats_new(session):
+    """
+    Первый парсер: будет переходить по ссылкам.
+
+
+    """
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
     soup = BeautifulSoup(response.text, features='lxml')
@@ -68,7 +68,13 @@ def whats_new(session):
         return results
 
 
+# Информация о версиях Python — номера, статусы и ссылки на документацию.
 def latest_versions(session):
+    """
+    Второй парсер будет собирать информацию о версиях Python — номера,
+    статусы (in development, pre-release, stable и так далее)
+    и ссылки на документацию.
+    """
     response = get_response(session, MAIN_DOC_URL)
     soup = BeautifulSoup(response.text, features='lxml')
     sidebar = find_tag(soup, 'div', attrs={'class': 'sphinxsidebarwrapper'})
@@ -92,13 +98,19 @@ def latest_versions(session):
     return results
 
 
+# Скачиваем архив документации Python.
 def download(session):
+    """
+    Парсер будет скачивать архив с документацией Python на локальный диск.
+    """
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
     response = get_response(session, downloads_url)
     soup = BeautifulSoup(response.text, features='lxml')
     main_tag = find_tag(soup, 'div', {'role': 'main'})
     table_tag = find_tag(main_tag, 'table', {'class': 'docutils'})
-    pdf_a4_tag = find_tag(table_tag, 'a', {'href': re.compile(r'.+pdf-a4\.zip$')})
+    pdf_a4_tag = find_tag(
+        table_tag, 'a', {'href': re.compile(r'.+pdf-a4\.zip$')}
+    )
     pdf_a4_link = pdf_a4_tag['href']
     archive_url = urljoin(downloads_url, pdf_a4_link)
     filename = archive_url.split('/')[-1]
@@ -163,7 +175,14 @@ MODE_TO_FUNCTION = {
 }
 
 
+# Запуск логирования, выбор режима работы
 def main():
+    """
+    Запускаем программу, логирование.
+
+    Выбираем из arg режим работы
+    При необходимости чистим кеш
+    """
     configure_logging()
     logging.info('Парсер запущен!')
     arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())
