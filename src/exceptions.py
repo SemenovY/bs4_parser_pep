@@ -15,7 +15,14 @@
 class ParserFindTagException(Exception):
     """Вызывается, когда парсер не может найти тег."""
 
-    pass
+
+class ParserFindAllVersionException(Exception):
+    """
+    Циклу задаётся условие.
+
+    Если в списке есть фраза All versions, то нужно найти в нём
+    все теги <a>, а если нет — вывести сообщение об ошибке.
+    """
 
 
 # ヽ(´▽`)/

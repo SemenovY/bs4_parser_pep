@@ -1,4 +1,8 @@
 # Парсер документации Python и PEP
+[![Python](https://img.shields.io/badge/-Python-464646?style=flat&logo=Python&logoColor=ffffff&color=043A6B)](https://www.python.org/)
+[![BeautifulSoup4](https://img.shields.io/badge/-BeautifulSoup4-464646?style=flat&logo=BeautifulSoup4&logoColor=ffffff&color=043A6B)](https://www.crummy.com/software/BeautifulSoup/)
+[![Prettytable](https://img.shields.io/badge/-Prettytable-464646?style=flat&logo=Prettytable&logoColor=ffffff&color=043A6B)](https://github.com/jazzband/prettytable)
+[![Logging](https://img.shields.io/badge/-Logging-464646?style=flat&logo=Logging&logoColor=ffffff&color=043A6B)](https://docs.python.org/3/library/logging.html)
 ## Описание
 Парсер информации о Python с **https://docs.python.org/3/** и **https://peps.python.org/**
 ### Перед использованием
@@ -18,8 +22,6 @@ git clone gh repo clone SemenovY/bs4_parser_pep
 В корневой папке нужно создать виртуальное окружение и установить зависимости.
 ```
 python -m venv venv
-```
-```
 pip install -r requirements.txt
 ```
 ### смените директорию на папку ./src/

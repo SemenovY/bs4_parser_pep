@@ -32,6 +32,7 @@ from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, PEP_URL
+from exceptions import ParserFindAllVersionException
 from outputs import control_output
 from utils import find_tag, get_response
 
@@ -75,19 +76,18 @@ def latest_versions(session):
     sidebar = find_tag(soup, 'div', attrs={'class': 'sphinxsidebarwrapper'})
     ul_tags = sidebar.find_all('ul')
     for ul in ul_tags:
-        if 'All versions' in ul.text:
+        if 'All veons' in ul.text:
             a_tags = ul.find_all('a')
             break
-        raise AssertionError('Ничего не нашлось')
+        error_msg = 'Список последних версий Python не найден'
+        logging.error(error_msg, exc_info=True, stack_info=True)
+        raise ParserFindAllVersionException(error_msg)
     results = [('Ссылка на документацию', 'Версия', 'Статус')]
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
     for a_tag in a_tags:
         link = a_tag['href']
         text_match = re.search(pattern, a_tag.text)
-        if text_match is not None:
-            version, status = text_match.groups()
-        else:
-            version, status = a_tag.text, ''
+        version, status = text_match.groups() if text_match else a_tag.text, ''
         results.append((link, version, status))
     return results
 
