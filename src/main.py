@@ -76,7 +76,7 @@ def latest_versions(session):
     sidebar = find_tag(soup, 'div', attrs={'class': 'sphinxsidebarwrapper'})
     ul_tags = sidebar.find_all('ul')
     for ul in ul_tags:
-        if 'All veons' in ul.text:
+        if 'All versions' in ul.text:
             a_tags = ul.find_all('a')
             break
         error_msg = 'Список последних версий Python не найден'
